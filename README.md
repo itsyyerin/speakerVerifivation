@@ -1,16 +1,21 @@
-# thisone
+# 화자검증 AI application
 
-for a graduation
+AI 완성, 어플리케이션 DB 이슈 제외 완성
+-> AI와 APP 결합 제외 모두 완성
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## @@
+사용 언어 : dart
+사용 프레임워크 : flutter
+사용 ide : android studio
 
-A few resources to get you started if this is your first Flutter project:
+## 개발 목표
+1. 안드로이드 기반 어플리케이션 제작
+2. 통화 녹음 파일 업로드
+3. 통화한 상대 신분 검증 후 결과 안내
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+   ## 주요 UI
+   홈화면 : 녹음파일 업로드
+   친구 목록 화면 : 신규 목소리 등록, 등록된 프로필 삭제, 등록된 사람 프로필 리스트 확인 가능
+   결과화면 : 검증 결과 안내
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
