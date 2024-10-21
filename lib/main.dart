@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thisone/home.dart';
 import 'package:thisone/fastapi.dart';
 import 'package:mysql_client/mysql_client.dart';
+import 'package:thisone/letsgo.dart';
 //
 
 void main() {
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'App',
-      home: Home() //LoginPage()
+      home: LetsGo() //LoginPage()
     );
   }
 }

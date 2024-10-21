@@ -1,7 +1,7 @@
 flutter_native_splash:
   # 이미지 경로 설정
   image: assets/splash.png
-  color: "#42a5f5"  # 배경색 설정 (필요하지 않다면 제거 가능)
+  color: "#008000"  # 배경색 설정 (필요하지 않다면 제거 가능)
 
   # Android 12 이상 버전 설정
   android_12:
