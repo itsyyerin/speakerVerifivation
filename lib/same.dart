@@ -15,7 +15,7 @@ class SameImageScreen extends StatelessWidget {
             );
           },
           child: Image.asset(
-            'assets/same.png', // 표시할 이미지 경로
+            'assets/same.png', // 표시할 이미지 경로 지정
             fit: BoxFit.cover, // 이미지를 화면에 꽉 채워서 보여줌
             width: double.infinity, // 화면 너비에 맞추기
             height: double.infinity, // 화면 높이에 맞추기
