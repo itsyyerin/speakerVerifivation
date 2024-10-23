@@ -2,9 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:thisone/loading.dart';
-import 'package:thisone/same.dart';
-import 'package:thisone/different.dart';
+import 'package:thisone/loading.dart';  // Loading 화면 import
 import 'dart:io';
 import 'fastapi.dart';
 
@@ -20,8 +18,6 @@ AudioPlayer player = AudioPlayer();
 class _HomeState extends State<Home> {
   String? _selectedFileName1;
   String? _selectedFileName2;
-  List<dynamic>? _mfcc1;
-  List<dynamic>? _mfcc2;
   File? _audioFile1;
   File? _audioFile2;
 
@@ -84,32 +80,14 @@ class _HomeState extends State<Home> {
       return;
     }
 
-    // 로딩 화면 표시
+    // 로딩 화면으로 넘어가면서 파일 전달
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Loading()),
+      MaterialPageRoute(
+        builder: (context) => Loading(audioFile1: _audioFile1!, audioFile2: _audioFile2!),
+      ),
     );
-
-    // 서버로 음성 파일을 보내고 결과 받기
-    final result = await _apiService.compareSpeakers(_audioFile1!, _audioFile2!);
-    if (result == true) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SameImageScreen()),
-      );
-    } else if (result == false) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => DifferentImageScreen()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('비교 중 오류가 발생했습니다.')),
-      );
-    }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -118,15 +96,16 @@ class _HomeState extends State<Home> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.green,
         title: Row(
-        children: const [
-        Icon(Icons.mic, color: Colors.white), // 마이크 아이콘 추가
-    SizedBox(width: 10),
-    Text(
-    '음성의 감시탑', // 타이틀 변경
-    style: TextStyle(fontSize: 18, color: Colors.white),
-    ),
-    ],
-    ),),
+          children: const [
+            Icon(Icons.mic, color: Colors.white), // 마이크 아이콘 추가
+            SizedBox(width: 10),
+            Text(
+              '음성의 감시탑', // 타이틀 변경
+              style: TextStyle(fontSize: 18, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
       body: Container(
         color: Colors.grey[200],
         child: Center(
@@ -182,8 +161,6 @@ class _HomeState extends State<Home> {
                           ),
                           if (_selectedFileName1 != null)
                             Text('선택된 파일: $_selectedFileName1', style: const TextStyle(fontSize: 10)),
-                          if (_mfcc1 != null)
-                            const Text('특징 추출이 완료되었습니다.', style: TextStyle(fontSize: 10)),
                         ],
                       ),
                     ),
@@ -241,8 +218,6 @@ class _HomeState extends State<Home> {
                           ),
                           if (_selectedFileName2 != null)
                             Text('선택된 파일: $_selectedFileName2', style: const TextStyle(fontSize: 10)),
-                          if (_mfcc2 != null)
-                            const Text('특징 추출이 완료되었습니다', style: TextStyle(fontSize: 10)),
                         ],
                       ),
                     ),

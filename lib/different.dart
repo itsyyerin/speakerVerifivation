@@ -1,8 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:thisone/home.dart';
 
-class DifferentImageScreen extends StatelessWidget {
-  const DifferentImageScreen({super.key});
+class DifferentImageScreen extends StatefulWidget {
+  final double similarity;  // 유사도 값을 받는 변수 추가
+
+  const DifferentImageScreen({super.key, required this.similarity});  // 유사도 값을 생성자에서 전달받도록 수정
+
+  @override
+  _DifferentImageScreenState createState() => _DifferentImageScreenState();
+}
+
+class _DifferentImageScreenState extends State<DifferentImageScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    // 화면이 로드되면 경고창을 띄움
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWarningDialog();
+    });
+  }
+
+  // 경고창을 띄우는 함수
+  void _showWarningDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.green,
+          title: const Text('[ 주의 ]',
+              textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18, color: Colors.red, fontWeight: FontWeight.bold), // '비동일인'만 빨간색
+          ),  // 경고창 제목
+          content: const Text('비동일인이 의심됩니다.',
+              textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold), // '비동일인'만 빨간색
+          ),  // 경고창 내용
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인',
+                style: TextStyle(color: Colors.black),),
+              onPressed: () {
+                Navigator.of(context).pop();  // 경고창 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +93,12 @@ class DifferentImageScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
+            ),
+            const SizedBox(height: 20),
+            // 유사도 점수를 표시하는 부분 추가
+            Text(
+              '유사도 점수: ${widget.similarity.toStringAsFixed(2)}',  // 유사도 값을 소수점 2자리로 표시
+              style: const TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 30),
             // 큰 X 아이콘 추가
@@ -98,4 +150,3 @@ class DifferentImageScreen extends StatelessWidget {
     );
   }
 }
-
