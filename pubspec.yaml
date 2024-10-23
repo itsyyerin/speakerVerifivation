@@ -35,7 +35,7 @@ flutter:
   # Assets section for splash screen images
   assets:
     - assets/splash.png
-    - assets/Arrow-left-circle.png
+    - assets/goback.png
     - assets/loading.png
     - assets/mic.png
     - assets/Rectangle3.png

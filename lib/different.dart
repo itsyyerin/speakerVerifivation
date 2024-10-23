@@ -1,55 +1,101 @@
 import 'package:flutter/material.dart';
-import 'home.dart'; // Home.dart 화면을 불러오기 위한 import
-import 'loading.dart'; // Loading.dart 화면을 불러오기 위한 import
+import 'package:thisone/home.dart';
 
 class DifferentImageScreen extends StatelessWidget {
+  const DifferentImageScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          // 사진을 화면에 크게 표시
-          Expanded(
-            child: Image.asset(
-              'assets/different.png', // 표시할 이미지 경로
-              fit: BoxFit.cover, // 이미지를 화면에 꽉 채워서 보여줌
-              width: double.infinity, // 화면 너비에 맞추기
+      appBar: AppBar(
+        automaticallyImplyLeading: false, // 기본 뒤로가기 버튼을 숨김
+        backgroundColor: Colors.green, // 상단바 배경색을 녹색으로 변경
+        title: Row(
+          children: const [
+            Icon(Icons.mic, color: Colors.white), // 마이크 아이콘 추가
+            SizedBox(width: 10),
+            Text(
+              '음성의 감시탑', // 타이틀 변경
+              style: TextStyle(fontSize: 18, color: Colors.white),
             ),
-          ),
-
-          // 버튼들이 들어갈 공간
-          Padding(
-            padding: const EdgeInsets.all(16.0), // 버튼 여백 추가
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                // 왼쪽 버튼: Home으로 돌아가기
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => Home()),
-                    );
-                  },
-                  child: Text('Home으로 돌아가기'),
+          ],
+        ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              '화자 검증이 완료되었습니다.',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            // '두 화자가 비동일인임이 확인되었습니다.' 한 줄로 출력
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  '두 화자가 ',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-
-                // 오른쪽 버튼: Loading 화면으로 이동
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => Loading()),
-                    );
-                  },
-                  child: Text('Loading 화면으로 이동'),
+                Text(
+                  '비동일인',
+                  style: TextStyle(fontSize: 18, color: Colors.red, fontWeight: FontWeight.bold), // '비동일인'만 빨간색
+                ),
+                Text(
+                  '임이 확인되었습니다.',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 30),
+            // 큰 X 아이콘 추가
+            Image.asset('assets/different.png', height: 230),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                // Home 버튼
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Home()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // 배경 흰색
+                    side: const BorderSide(color: Colors.green), // 테두리 초록색
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 35), // 버튼 크기 조정
+                  ),
+                  child: const Text(
+                    'Home',
+                    style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 20), // 버튼 사이 여백
+                // Retry 버튼
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // 이전 화면으로 돌아가기
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // 배경 초록색
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 35), // 버튼 크기 조정
+                  ),
+                  child: const Text(
+                    'Retry',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+

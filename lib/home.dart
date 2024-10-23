@@ -1,9 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:thisone/loading.dart';
+import 'package:thisone/same.dart';
+import 'package:thisone/different.dart';
 import 'dart:io';
-import 'fastapi.dart'; // ApiService 클래스 import
+import 'fastapi.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -12,19 +15,18 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-AudioPlayer player = AudioPlayer(); // 오디오 플레이어 객체 만들기
+AudioPlayer player = AudioPlayer();
 
 class _HomeState extends State<Home> {
-  String? _selectedFileName1; // 첫 번째 음성파일 이름
-  String? _selectedFileName2; // 두 번째 음성파일 이름
-  List<dynamic>? _mfcc1; // 첫 번째 파일의 MFCC 결과
-  List<dynamic>? _mfcc2; // 두 번째 파일의 MFCC 결과
-  File? _audioFile1; // 첫 번째 음성파일
-  File? _audioFile2; // 두 번째 음성파일
+  String? _selectedFileName1;
+  String? _selectedFileName2;
+  List<dynamic>? _mfcc1;
+  List<dynamic>? _mfcc2;
+  File? _audioFile1;
+  File? _audioFile2;
 
-  final ApiService _apiService = ApiService(); // ApiService 인스턴스 생성
+  final ApiService _apiService = ApiService();
 
-  /*확장자검사 및 파일업로드 구역*/
   Future<void> _openFilePicker1() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -37,7 +39,6 @@ class _HomeState extends State<Home> {
           _selectedFileName1 = result.files.single.name;
           _audioFile1 = File(result.files.single.path!);
         });
-        await _extractMFCC1(); // FastAPI 통신
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('첫 번째 파일의 확장자 에러')),
@@ -62,7 +63,6 @@ class _HomeState extends State<Home> {
           _selectedFileName2 = result.files.single.name;
           _audioFile2 = File(result.files.single.path!);
         });
-        await _extractMFCC2(); // FastAPI 통신
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('두 번째 파일의 확장자 에러')),
@@ -75,53 +75,60 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /*fastapi로 보내서 mfcc추출하는 구역*/
-  Future<void> _extractMFCC1() async {
-    if (_audioFile1 == null) return;
-    print("적합한 화자 업로드 요청을 보냅니다: ${_audioFile1!.path}");
-    final mfcc = await _apiService.uploadProperSpeaker(_audioFile1!);
-    print("서버로부터 받은 MFCC 데이터: $mfcc");
-    if (mfcc != null) {
-      setState(() {
-        _mfcc1 = mfcc; // MFCC 결과 저장
-      });
+  // 화자 인식 시작 버튼을 눌렀을 때 실행
+  Future<void> _startSpeakerRecognition() async {
+    if (_audioFile1 == null || _audioFile2 == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('두 개의 음성 파일을 모두 선택해주세요.')),
+      );
+      return;
+    }
+
+    // 로딩 화면 표시
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Loading()),
+    );
+
+    // 서버로 음성 파일을 보내고 결과 받기
+    final result = await _apiService.compareSpeakers(_audioFile1!, _audioFile2!);
+    if (result == true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SameImageScreen()),
+      );
+    } else if (result == false) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => DifferentImageScreen()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('첫 번째 파일의 MFCC 추출에 실패했습니다.')),
+        const SnackBar(content: Text('비교 중 오류가 발생했습니다.')),
       );
     }
   }
 
-  Future<void> _extractMFCC2() async {
-    if (_audioFile2 == null) return;
-    print("적합한 화자 업로드 요청을 보냅니다: ${_audioFile2!.path}");
-    final mfcc = await _apiService.uploadCompareSpeaker(_audioFile2!);
-    print("서버로부터 받은 MFCC 데이터: $mfcc");
-    if (mfcc != null) {
-      setState(() {
-        _mfcc2 = mfcc; // MFCC 결과 저장
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('두 번째 파일의 MFCC 추출에 실패했습니다.')),
-      );
-    }
-  }
 
-  /*앱 화면 구성하는 구역*/
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.green, // 앱바 배경색을 녹색으로 변경
-        title: const Text(
-          "화자검증 어플리케이션 데모버전",
-          style: TextStyle(fontSize: 16),
-        ),
-      ),
+        backgroundColor: Colors.green,
+        title: Row(
+        children: const [
+        Icon(Icons.mic, color: Colors.white), // 마이크 아이콘 추가
+    SizedBox(width: 10),
+    Text(
+    '음성의 감시탑', // 타이틀 변경
+    style: TextStyle(fontSize: 18, color: Colors.white),
+    ),
+    ],
+    ),),
       body: Container(
-        color: Colors.grey[200], // 배경색을 아주아주 연한 회색으로 설정
+        color: Colors.grey[200],
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -131,20 +138,18 @@ class _HomeState extends State<Home> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-
-              // 첫 번째 네모칸
               Container(
                 width: 350,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: Colors.white, // 박스 배경색 흰색
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1), // 그림자 색상
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 10,
                       spreadRadius: 3,
-                      offset: const Offset(2, 2), // 그림자 위치
+                      offset: const Offset(2, 2),
                     ),
                   ],
                 ),
@@ -152,8 +157,8 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 35.0, right: 0.0), // 이미지 위치를 더 오른쪽으로 조정
-                      child: Image.asset('assets/microphone.png', height: 30), // 업로드 아이콘 크기 조정
+                      padding: const EdgeInsets.only(left: 35.0, right: 0.0),
+                      child: Image.asset('assets/microphone.png', height: 30),
                     ),
                     Expanded(
                       child: Column(
@@ -162,18 +167,18 @@ class _HomeState extends State<Home> {
                           ElevatedButton(
                             onPressed: _openFilePicker1,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white, // 버튼 배경색 흰색
-                              padding: const EdgeInsets.symmetric(vertical: 20), // 버튼 크기 조정
-                              elevation: 0, // 그림자 제거
+                              backgroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              elevation: 0,
                             ),
                             child: const Text(
                               ' 검증이 필요한 음성파일 ',
-                              style: TextStyle(fontSize: 20, color: Colors.black), // 글자 색상 검은색
+                              style: TextStyle(fontSize: 20, color: Colors.black),
                             ),
                           ),
                           const Text(
                             '의심되는 화자의 목소리가 들어간 \n음성 파일을 업로드해주세요.',
-                            style: TextStyle(fontSize: 12, color: Colors.black), // 작은 글씨
+                            style: TextStyle(fontSize: 12, color: Colors.black),
                           ),
                           if (_selectedFileName1 != null)
                             Text('선택된 파일: $_selectedFileName1', style: const TextStyle(fontSize: 10)),
@@ -185,35 +190,32 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // 두 번째 네모칸
               Container(
                 width: 350,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: Colors.white, // 박스 배경색 흰색
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1), // 그림자 색상
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 10,
                       spreadRadius: 3,
-                      offset: const Offset(2, 2), // 그림자 위치
+                      offset: const Offset(2, 2),
                     ),
                   ],
                 ),
                 child: Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 30.0, right: 8.0), // 왼쪽 여백 추가
+                      padding: const EdgeInsets.only(left: 30.0, right: 8.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset('assets/microphone.png', height: 30), // 첫 번째 아이콘
-                          const SizedBox(height: 8), // 아이콘 간격
-                          Image.asset('assets/video.png', height: 30), // 두 번째 아이콘
+                          Image.asset('assets/microphone.png', height: 30),
+                          const SizedBox(height: 8),
+                          Image.asset('assets/video.png', height: 30),
                         ],
                       ),
                     ),
@@ -224,18 +226,18 @@ class _HomeState extends State<Home> {
                           ElevatedButton(
                             onPressed: _openFilePicker2,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white, // 버튼 배경색 흰색
-                              padding: const EdgeInsets.symmetric(vertical: 20), // 버튼 크기 조정
-                              elevation: 0, // 그림자 제거
+                              backgroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              elevation: 0,
                             ),
                             child: const Text(
                               '  화자의 목소리가 들어간 파일  ',
-                              style: TextStyle(fontSize: 20, color: Colors.black), // 글자 색상 검은색
+                              style: TextStyle(fontSize: 20, color: Colors.black),
                             ),
                           ),
                           const Text(
                             '알고 싶은 화자의 목소리가 들어간 \n음성 파일 또는 영상 파일을 업로드해주세요.',
-                            style: TextStyle(fontSize: 12, color: Colors.black), // 작은 글씨
+                            style: TextStyle(fontSize: 12, color: Colors.black),
                           ),
                           if (_selectedFileName2 != null)
                             Text('선택된 파일: $_selectedFileName2', style: const TextStyle(fontSize: 10)),
@@ -247,26 +249,17 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // "비교하기" 버튼
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Loading()), // home.dart의 Home 위젯으로 이동
-                  );
-                }, // 아직 기능 없음
+                onPressed: _startSpeakerRecognition,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // 버튼 배경색 흰색
-                  padding: const EdgeInsets.symmetric(vertical: 15), // 버튼 크기 조정
-                  elevation: 0, // 그림자 제거
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  elevation: 0,
                 ),
                 child: const Text(
-                  '           비교하기           ',
-                  style:
-                      TextStyle(fontSize: 20, color: Colors.black), // 글자 색상 검은색
+                  '           화자인식 시작          ',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
                 ),
               ),
             ],
