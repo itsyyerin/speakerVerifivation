@@ -151,7 +151,7 @@ class _HomeState extends State<Home> {
                               elevation: 0,
                             ),
                             child: const Text(
-                              ' 검증이 필요한 음성파일 ',
+                              ' 인식이 필요한 음성파일 ',
                               style: TextStyle(fontSize: 20, color: Colors.black),
                             ),
                           ),

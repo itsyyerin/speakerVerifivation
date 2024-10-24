@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 
 class ApiService {
-  final String baseUrl = "http://172.20.8.219:8000";  // FastAPI 서버 주소
+  final String baseUrl = "http://172.20.13.21:8000";  // FastAPI 서버 주소
 
   Future<Map<String, dynamic>?> compareSpeakers(File file1, File file2) async {
     var request = http.MultipartRequest(
